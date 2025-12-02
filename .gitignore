@@ -1,0 +1,19 @@
+# Build output
+dist/
+*.zip
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
