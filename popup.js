@@ -1122,36 +1122,37 @@ async function fetchMetadataForForm(url) {
 }
 
 async function fetchMetadata(url, signal) {
-    try {
-        const response = await fetch(url, { 
-            signal,
-            mode: 'cors',
-            credentials: 'omit'
-        });
-        if (!response.ok) {
-            throw new Error(`Response ${response.status}`);
+    // Use background script to bypass CORS
+    return new Promise((resolve, reject) => {
+        if (signal?.aborted) {
+            reject(new DOMException('Aborted', 'AbortError'));
+            return;
         }
-        const contentType = response.headers.get('content-type') || '';
-        if (!contentType.includes('text/html')) {
-            throw new Error('Not an HTML document');
-        }
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const title = doc.querySelector('title')?.textContent?.trim() || '';
-        const description =
-            doc.querySelector('meta[name="description"]')?.content?.trim() ||
-            doc.querySelector('meta[property="og:description"]')?.content?.trim() ||
-            '';
-        return { title, description };
-    } catch (error) {
-        // CORS errors are common - fail silently and return empty metadata
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            console.log('Metadata fetch blocked by CORS for:', url);
-            return { title: '', description: '' };
-        }
-        throw error;
-    }
+
+        const abortHandler = () => {
+            reject(new DOMException('Aborted', 'AbortError'));
+        };
+        signal?.addEventListener('abort', abortHandler);
+
+        chrome.runtime.sendMessage(
+            { action: 'fetchMetadata', url },
+            (response) => {
+                signal?.removeEventListener('abort', abortHandler);
+                
+                if (chrome.runtime.lastError) {
+                    console.log('Metadata fetch error:', chrome.runtime.lastError.message);
+                    resolve({ title: '', description: '' });
+                    return;
+                }
+                
+                if (response?.success) {
+                    resolve(response.metadata);
+                } else {
+                    resolve({ title: '', description: '' });
+                }
+            }
+        );
+    });
 }
 
 function applyMetadataToForm({ title, description }) {
@@ -1238,14 +1239,45 @@ function resetCustomCategoryForm() {
     }
 }
 
+// Comprehensive search function - matches across all bookmark metadata
+function matchesSearchQuery(bookmark, query) {
+    if (!query) return true;
+    
+    const searchTerms = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+    
+    // Build searchable text from all metadata fields
+    const searchableFields = [
+        bookmark.title || '',
+        bookmark.url || '',
+        bookmark.description || '',
+        DEFAULT_CATEGORIES[bookmark.category]?.name || '',
+        // Include category keywords for matching
+        ...(DEFAULT_CATEGORIES[bookmark.category]?.keywords || [])
+    ];
+    
+    // Extract domain for searching
+    try {
+        const url = new URL(bookmark.url);
+        searchableFields.push(url.hostname.replace('www.', ''));
+        // Add path segments as searchable
+        searchableFields.push(...url.pathname.split('/').filter(s => s));
+    } catch (e) {
+        // URL parsing failed, already have raw URL
+    }
+    
+    const searchText = searchableFields.join(' ').toLowerCase();
+    
+    // All search terms must match (AND logic for multiple words)
+    return searchTerms.every(term => searchText.includes(term));
+}
+
 function populateBookmarkSelector(filter = '') {
     if (!bookmarkSelectorList) return;
     
     const filterLower = filter.toLowerCase();
     const filtered = allBookmarks.filter(b => {
         if (!filter) return true;
-        return b.title.toLowerCase().includes(filterLower) || 
-               b.url.toLowerCase().includes(filterLower);
+        return matchesSearchQuery(b, filterLower);
     });
     
     bookmarkSelectorList.innerHTML = filtered.slice(0, 50).map(bookmark => {
@@ -1308,6 +1340,21 @@ async function handleCustomCategorySubmit(event) {
     
     // Generate a slug ID from the name
     const categoryId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    
+    // Check if category already exists (by ID or name)
+    if (DEFAULT_CATEGORIES[categoryId]) {
+        showToast(`Category "${DEFAULT_CATEGORIES[categoryId].name}" already exists.`, 'error');
+        return;
+    }
+    
+    // Also check if a category with the same name exists (case-insensitive)
+    const existingCategory = Object.values(DEFAULT_CATEGORIES).find(
+        cat => cat.name.toLowerCase() === name.toLowerCase()
+    );
+    if (existingCategory) {
+        showToast(`Category "${existingCategory.name}" already exists.`, 'error');
+        return;
+    }
     
     // Parse keywords
     const keywords = (categoryKeywordsInput?.value || '')
@@ -1414,8 +1461,17 @@ async function handleImportSubmit(event) {
         if (!entries.length) {
             throw new Error('No bookmarks found in file.');
         }
-        const importedCount = await importBookmarksFromData(entries, folderId);
-        showToast(`Imported ${importedCount} bookmark${importedCount === 1 ? '' : 's'}.`);
+        const result = await importBookmarksFromData(entries, folderId);
+        
+        // Handle result with skipped duplicates info
+        if (typeof result === 'object' && result.skipped > 0) {
+            const importedText = `Imported ${result.imported} bookmark${result.imported === 1 ? '' : 's'}`;
+            const skippedText = `${result.skipped} duplicate${result.skipped === 1 ? '' : 's'} skipped`;
+            showToast(`${importedText}, ${skippedText}.`);
+        } else {
+            const count = typeof result === 'object' ? result.imported : result;
+            showToast(`Imported ${count} bookmark${count === 1 ? '' : 's'}.`);
+        }
         closeImportModal();
     } catch (error) {
         console.error('Import failed', error);
@@ -1491,11 +1547,25 @@ async function importBookmarksFromData(entries, folderId) {
     const recategorizeIds = [];
     const metaUpdates = {};
     let importedCount = 0;
+    let skippedCount = 0;
+
+    // Build a set of existing URLs for fast duplicate detection
+    const existingUrls = new Set(
+        allBookmarks.map(b => normalizeUrlForComparison(b.url))
+    );
 
     for (const entry of entries) {
         if (!entry || !entry.url) continue;
         const normalizedUrl = normalizeUrl(entry.url.trim());
         if (!isValidHttpUrl(normalizedUrl)) continue;
+
+        // Check for duplicate URL
+        const urlForComparison = normalizeUrlForComparison(normalizedUrl);
+        if (existingUrls.has(urlForComparison)) {
+            skippedCount += 1;
+            continue;
+        }
+
         const title = (entry.title && entry.title.trim()) || normalizedUrl;
         try {
             const bookmark = await createBookmarkInChrome({
@@ -1504,6 +1574,7 @@ async function importBookmarksFromData(entries, folderId) {
                 url: normalizedUrl
             });
             importedCount += 1;
+            existingUrls.add(urlForComparison); // Prevent duplicates within same import
             if (entry.description) {
                 metaUpdates[bookmark.id] = { description: entry.description };
             }
@@ -1519,7 +1590,24 @@ async function importBookmarksFromData(entries, folderId) {
 
     bookmarkMeta = { ...bookmarkMeta, ...metaUpdates };
     await reloadData({ manualOverrides, recategorizeIds });
+    
+    if (skippedCount > 0) {
+        return { imported: importedCount, skipped: skippedCount };
+    }
     return importedCount;
+}
+
+// Normalize URL for comparison to detect duplicates (removes trailing slash, protocol differences, www)
+function normalizeUrlForComparison(url) {
+    try {
+        const parsed = new URL(url);
+        let normalized = parsed.hostname.toLowerCase().replace(/^www\./, '');
+        normalized += parsed.pathname.replace(/\/$/, '') || '';
+        normalized += parsed.search;
+        return normalized;
+    } catch {
+        return url.toLowerCase().trim();
+    }
 }
 
 function handleExport(type) {
@@ -2387,13 +2475,9 @@ function renderBookmarks() {
         pageTitle.textContent = DEFAULT_CATEGORIES[activeCategory]?.name || 'Uncategorized';
     }
     
-    // Filter by search
+    // Filter by search - searches across all metadata fields
     if (searchQuery) {
-        items = items.filter(item =>
-            item.title.toLowerCase().includes(searchQuery) ||
-            item.url.toLowerCase().includes(searchQuery) ||
-            (DEFAULT_CATEGORIES[item.category]?.name || '').toLowerCase().includes(searchQuery)
-        );
+        items = items.filter(item => matchesSearchQuery(item, searchQuery));
     }
     
     // Update count
