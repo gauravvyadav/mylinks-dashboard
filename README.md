@@ -1,47 +1,34 @@
-# MyLinks Dashboard - Chrome Extension
+# MyLinks Dashboard
 
-A beautiful bookmark manager extension for Chrome with AI-powered categorization.
+A beautiful bookmark manager Chrome extension with smart auto-categorization and 100+ built-in categories.
 
-![MyLinks Dashboard](screenshot.png)
+![MyLinks Dashboard](preview.png)
 
 ## Features
 
-- 📚 **Beautiful UI** - Clean, modern interface inspired by professional dashboard designs
+- 📚 **Beautiful UI** - Clean, modern interface with smooth animations
 - 🔍 **Quick Search** - Instantly find bookmarks by title, URL, or category
-- 🏷️ **Smart Categories** - Automatically organizes bookmarks into categories:
-  - AI Tools
-  - Development
-  - Education
-  - Design
-  - Finance
-  - Entertainment
-  - Tools & Utilities
-  - Social
-  - Shopping
-  - News & Media
-- 🤖 **AI Categorization** - Uses Chrome's built-in AI (when available) for intelligent categorization
-- 💾 **Cached Categories** - Remembers your bookmark categories for fast loading
+- 🏷️ **100+ Smart Categories** - Automatically organizes bookmarks into categories like:
+  - AI Tools, Development, Education, Design
+  - Finance, Entertainment, Gaming, Social
+  - Shopping, News, Health, Travel
+  - Books, Music, Photography, Science
+  - And 90+ more specialized categories!
+- ➕ **Custom Categories** - Create your own categories with custom keywords
+- 🔄 **Re-Categorize** - One-click to re-scan and categorize all bookmarks
 - 🌐 **Favicon Support** - Shows website favicons for easy recognition
 - ✏️ **Full CRUD Control** - Add, edit, and delete bookmarks without leaving the popup
-- 🧠 **Auto Metadata Fetch** - Prefills titles & descriptions by visiting the link in the background
-- 💼 **Import & Export** - Backup as JSON or generate a standalone, beautiful HTML dashboard you can open anywhere
+- 🧠 **Auto Metadata Fetch** - Prefills titles & descriptions automatically
+- 💼 **Import & Export** - Backup as JSON or generate a beautiful HTML dashboard
 
 ## Installation
-
-### From Source (Developer Mode)
 
 1. Download or clone this repository
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" (toggle in top-right corner)
 4. Click "Load unpacked"
-5. Select the `bookmark-extension` folder
+5. Select the project folder
 6. The extension icon will appear in your toolbar
-
-### Generate Better Icons (Optional)
-
-1. Open `icons/generate-icons.html` in your browser
-2. Right-click each canvas and save as PNG
-3. Or click "Download All Icons" button
 
 ## Usage
 
@@ -49,57 +36,44 @@ A beautiful bookmark manager extension for Chrome with AI-powered categorization
 2. Browse all your bookmarks in a beautiful grid layout
 3. Use the sidebar to filter by category
 4. Search for specific bookmarks using the search bar
-5. Click "AI Categorize" to automatically sort uncategorized bookmarks
-6. Use "Add Bookmark" to create a link directly from the popup and fetch metadata instantly
+5. Click the refresh icon to re-categorize all bookmarks
+6. Use the "+" button to add a new bookmark
 
 ### Import & Export
 
-- **Import**: Click `Import`, choose either a MyLinks `.json` backup or Chrome's default `.html` export, and pick the destination folder. The extension recreates each link (including descriptions and manual categories) inside Chrome's bookmark tree.
-- **Default Export (.json)**: Creates a structured backup (`meta` + `bookmarks`) so you can re-import later or process the data elsewhere.
-- **Beautiful HTML Export (.html)**: Generates a self-contained, responsive web page with all your bookmarks organized by category—perfect for sharing or opening offline in any browser.
+Access import/export options from the settings menu (⋮):
 
-### Smart Metadata Fetch
+- **Import**: Import bookmarks from JSON backup or Chrome HTML export
+- **Export (Chrome format)**: Create a JSON backup
+- **Export (Beautiful HTML)**: Generate a standalone HTML page with all bookmarks
 
-When you paste a URL while adding/editing a bookmark, the popup can auto-visit the page (thanks to the `<all_urls>` host permission) to grab the `<title>` and `<meta description>`. You can trigger it manually via **Fetch details** if the link changes or if you want to refresh the summary.
+## File Structure
 
-## Chrome AI Feature
-
-This extension supports Chrome's experimental built-in AI for smart categorization. To enable:
-
-1. Use Chrome Canary or Dev channel (version 127+)
-2. Enable the following flags in `chrome://flags`:
-   - `#optimization-guide-on-device-model`
-   - `#prompt-api-for-gemini-nano`
-3. Restart Chrome
-
-If Chrome AI is not available, the extension falls back to keyword-based categorization which still works great!
+```
+mylinks-dashboard/
+├── manifest.json      # Chrome extension manifest (v3)
+├── popup.html         # Main popup UI
+├── popup.css          # Styles
+├── popup.js           # Application logic
+├── preview.png        # Preview screenshot
+├── README.md          # This file
+└── icons/             # Extension icons
+    ├── icon16.png
+    ├── icon32.png
+    ├── icon48.png
+    └── icon128.png
+```
 
 ## Permissions
 
-- **bookmarks**: Read your bookmarks to display them
+- **bookmarks**: Read and manage your bookmarks
 - **storage**: Cache categorization data for faster loading
+- **host_permissions**: Fetch metadata from URLs when adding bookmarks
 
-## Development
+## Version
 
-### File Structure
+Current version: **1.1.0**
 
-```
-bookmark-extension/
-├── manifest.json       # Extension manifest
-├── popup.html          # Main popup UI
-├── popup.css           # Styles
-├── popup.js            # Application logic
-├── icons/              # Extension icons
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── README.md           # This file
-```
+## Author
 
-### Customizing Categories
-
-Edit the `DEFAULT_CATEGORIES` object in `popup.js` to add or modify categories and their keywords.
-
-## License
-
-MIT License - Feel free to use and modify!
+Made by [gauravvyadav](https://github.com/gauravvyadav)
