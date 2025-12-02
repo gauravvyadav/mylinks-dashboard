@@ -14,6 +14,7 @@ release/*       → Release preparation
 ## Quick Commands
 
 ### Starting a New Feature
+
 ```bash
 git checkout develop
 git pull origin develop
@@ -21,6 +22,7 @@ git checkout -b feature/your-feature-name
 ```
 
 ### Starting a Bug Fix
+
 ```bash
 git checkout develop
 git pull origin develop
@@ -28,6 +30,7 @@ git checkout -b fix/bug-description
 ```
 
 ### Working on Your Branch
+
 ```bash
 # Make changes, then commit
 git add .
@@ -40,23 +43,26 @@ git push origin feature/your-feature-name
 ```
 
 ### Commit Message Convention
-| Prefix | Use For |
-|--------|---------|
-| `feat:` | New features |
-| `fix:` | Bug fixes |
-| `docs:` | Documentation |
-| `style:` | Formatting, no code change |
-| `refactor:` | Code restructuring |
-| `test:` | Adding tests |
-| `chore:` | Maintenance tasks |
+
+| Prefix      | Use For                    |
+| ----------- | -------------------------- |
+| `feat:`     | New features               |
+| `fix:`      | Bug fixes                  |
+| `docs:`     | Documentation              |
+| `style:`    | Formatting, no code change |
+| `refactor:` | Code restructuring         |
+| `test:`     | Adding tests               |
+| `chore:`    | Maintenance tasks          |
 
 ### Merging to Develop
+
 1. Push your branch to GitHub
 2. Create a Pull Request → `develop`
 3. Review & Squash Merge
 4. Delete the feature branch
 
 ### Creating a Release
+
 ```bash
 git checkout develop
 git pull origin develop
@@ -85,11 +91,11 @@ git branch -d release/v1.3.0
 
 ## Version Numbering
 
-| Change Type | Version | Example |
-|-------------|---------|---------|
-| Breaking changes | Major | 1.0.0 → 2.0.0 |
-| New features | Minor | 1.2.0 → 1.3.0 |
-| Bug fixes | Patch | 1.2.0 → 1.2.1 |
+| Change Type      | Version | Example       |
+| ---------------- | ------- | ------------- |
+| Breaking changes | Major   | 1.0.0 → 2.0.0 |
+| New features     | Minor   | 1.2.0 → 1.3.0 |
+| Bug fixes        | Patch   | 1.2.0 → 1.2.1 |
 
 ## Current Workflow
 

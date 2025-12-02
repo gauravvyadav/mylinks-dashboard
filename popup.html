@@ -1,284 +1,371 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MyLinks Dashboard</title>
-    <link rel="stylesheet" href="popup.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="popup.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="logo">
+          <svg
+            class="logo-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+          </svg>
+          <span>MyLinks</span>
+        </div>
+
+        <nav class="category-nav" id="category-nav">
+          <!-- Categories will be injected here by JS -->
+        </nav>
+
+        <div class="sidebar-footer">
+          <button
+            class="sidebar-footer-btn icon-only"
+            id="ai-categorize-btn"
+            title="Re-categorize all bookmarks"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+            </svg>
+          </button>
+          <button class="sidebar-footer-btn" id="custom-category-btn" title="Add custom category">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span>Custom Category</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h1 class="page-title" id="page-title">All Bookmarks</h1>
+            <p class="result-count" id="result-count">Loading bookmarks...</p>
+          </div>
+
+          <div class="top-bar-right">
+            <div class="search-container">
+              <svg
+                class="search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Search bookmarks..."
+                class="search-input"
+              />
+            </div>
+            <div class="top-bar-actions">
+              <button
+                class="icon-circle-btn primary"
+                id="add-bookmark-btn"
+                title="Add bookmark"
+                aria-label="Add bookmark"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14" />
                 </svg>
-                <span>MyLinks</span>
-            </div>
-
-            <nav class="category-nav" id="category-nav">
-                <!-- Categories will be injected here by JS -->
-            </nav>
-
-            <div class="sidebar-footer">
-                <button class="sidebar-footer-btn icon-only" id="ai-categorize-btn" title="Re-categorize all bookmarks">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-                        <path d="M21 3v5h-5"/>
-                    </svg>
+              </button>
+              <div class="dropdown-wrapper settings" id="settings-dropdown-wrapper">
+                <button
+                  class="icon-circle-btn"
+                  id="settings-menu-trigger"
+                  title="More options"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <circle cx="12" cy="5" r="2" />
+                    <circle cx="12" cy="12" r="2" />
+                    <circle cx="12" cy="19" r="2" />
+                  </svg>
                 </button>
-                <button class="sidebar-footer-btn" id="custom-category-btn" title="Add custom category">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                    <span>Custom Category</span>
-                </button>
+                <div class="dropdown-menu" id="settings-menu" hidden>
+                  <button type="button" class="dropdown-item" id="import-bookmarks-btn">
+                    Import bookmarks
+                  </button>
+                  <button type="button" class="dropdown-item" id="export-chrome-btn">
+                    Export (Chrome format)
+                  </button>
+                  <button type="button" class="dropdown-item" id="export-beautiful-btn">
+                    Export (Beautiful HTML)
+                  </button>
+                </div>
+              </div>
             </div>
-        </aside>
+          </div>
+        </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <div class="top-bar-left">
-                    <h1 class="page-title" id="page-title">All Bookmarks</h1>
-                    <p class="result-count" id="result-count">Loading bookmarks...</p>
-                </div>
+        <!-- AI Status Bar -->
+        <div class="ai-status-bar" id="ai-status-bar" style="display: none">
+          <div class="ai-status-content">
+            <div class="spinner"></div>
+            <span id="ai-status-text">Categorizing bookmarks with AI...</span>
+          </div>
+        </div>
 
-                <div class="top-bar-right">
-                    <div class="search-container">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                        </svg>
-                        <input
-                            type="text"
-                            id="search-input"
-                            placeholder="Search bookmarks..."
-                            class="search-input"
-                        />
-                    </div>
-                    <div class="top-bar-actions">
-                        <button class="icon-circle-btn primary" id="add-bookmark-btn" title="Add bookmark" aria-label="Add bookmark">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5v14M5 12h14" />
-                            </svg>
-                        </button>
-                        <div class="dropdown-wrapper settings" id="settings-dropdown-wrapper">
-                            <button class="icon-circle-btn" id="settings-menu-trigger" title="More options" aria-haspopup="true" aria-expanded="false">
-                                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                                    <circle cx="12" cy="5" r="2" />
-                                    <circle cx="12" cy="12" r="2" />
-                                    <circle cx="12" cy="19" r="2" />
-                                </svg>
-                            </button>
-                            <div class="dropdown-menu" id="settings-menu" hidden>
-                                <button type="button" class="dropdown-item" id="import-bookmarks-btn">Import bookmarks</button>
-                                <button type="button" class="dropdown-item" id="export-chrome-btn">Export (Chrome format)</button>
-                                <button type="button" class="dropdown-item" id="export-beautiful-btn">Export (Beautiful HTML)</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Grid Content -->
+        <div class="content-area">
+          <div class="bookmarks-grid" id="bookmarks-grid">
+            <!-- Bookmarks will be injected here by JS -->
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="empty-state" style="display: none">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
             </div>
+            <h3>No bookmarks found</h3>
+            <p>Try adjusting your search or category.</p>
+          </div>
 
-            <!-- AI Status Bar -->
-            <div class="ai-status-bar" id="ai-status-bar" style="display: none;">
-                <div class="ai-status-content">
-                    <div class="spinner"></div>
-                    <span id="ai-status-text">Categorizing bookmarks with AI...</span>
-                </div>
-            </div>
-
-            <!-- Grid Content -->
-            <div class="content-area">
-                <div class="bookmarks-grid" id="bookmarks-grid">
-                    <!-- Bookmarks will be injected here by JS -->
-                </div>
-                
-                <!-- Empty State -->
-                <div class="empty-state" id="empty-state" style="display: none;">
-                    <div class="empty-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                        </svg>
-                    </div>
-                    <h3>No bookmarks found</h3>
-                    <p>Try adjusting your search or category.</p>
-                </div>
-
-                <!-- Loading State -->
-                <div class="loading-state" id="loading-state">
-                    <div class="spinner large"></div>
-                    <p>Loading your bookmarks...</p>
-                </div>
-            </div>
-        </main>
+          <!-- Loading State -->
+          <div class="loading-state" id="loading-state">
+            <div class="spinner large"></div>
+            <p>Loading your bookmarks...</p>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Bookmark Modal -->
     <div class="modal-overlay" id="bookmark-modal" hidden>
-        <div class="modal">
-            <div class="modal-header">
-                <div>
-                    <h2 id="bookmark-modal-title">Add Bookmark</h2>
-                    <p id="bookmark-modal-subtitle">Create a new bookmark entry</p>
-                </div>
-                <button class="icon-button" id="bookmark-modal-close" aria-label="Close">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <form id="bookmark-form">
-                <input type="hidden" id="bookmark-id" />
-                <div class="form-group">
-                    <label for="bookmark-title">Title</label>
-                    <input type="text" id="bookmark-title" name="title" placeholder="E.g. GitHub" required />
-                </div>
-                <div class="form-group">
-                    <label for="bookmark-url">URL</label>
-                    <div class="input-with-action">
-                        <input type="url" id="bookmark-url" name="url" placeholder="https://example.com" required />
-                        <button type="button" class="ghost-link" id="metadata-refresh-btn">Fetch details</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="bookmark-description">Description <span class="optional">(optional)</span></label>
-                    <textarea id="bookmark-description" name="description" rows="3" placeholder="Short summary helps smarter categorization"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="bookmark-category">Category</label>
-                        <select id="bookmark-category" name="category">
-                            <option value="auto">Auto-detect</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="bookmark-folder">Folder</label>
-                        <select id="bookmark-folder" name="folder"></select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="metadata-status" id="metadata-status"></div>
-                    <div class="modal-actions">
-                        <button type="button" class="ghost-btn" id="bookmark-cancel-btn">Cancel</button>
-                        <button type="submit" class="primary-btn" id="bookmark-submit-btn">Save Bookmark</button>
-                    </div>
-                </div>
-            </form>
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <h2 id="bookmark-modal-title">Add Bookmark</h2>
+            <p id="bookmark-modal-subtitle">Create a new bookmark entry</p>
+          </div>
+          <button class="icon-button" id="bookmark-modal-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
+        <form id="bookmark-form">
+          <input type="hidden" id="bookmark-id" />
+          <div class="form-group">
+            <label for="bookmark-title">Title</label>
+            <input
+              type="text"
+              id="bookmark-title"
+              name="title"
+              placeholder="E.g. GitHub"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="bookmark-url">URL</label>
+            <div class="input-with-action">
+              <input
+                type="url"
+                id="bookmark-url"
+                name="url"
+                placeholder="https://example.com"
+                required
+              />
+              <button type="button" class="ghost-link" id="metadata-refresh-btn">
+                Fetch details
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="bookmark-description"
+              >Description <span class="optional">(optional)</span></label
+            >
+            <textarea
+              id="bookmark-description"
+              name="description"
+              rows="3"
+              placeholder="Short summary helps smarter categorization"
+            ></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bookmark-category">Category</label>
+              <select id="bookmark-category" name="category">
+                <option value="auto">Auto-detect</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="bookmark-folder">Folder</label>
+              <select id="bookmark-folder" name="folder"></select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="metadata-status" id="metadata-status"></div>
+            <div class="modal-actions">
+              <button type="button" class="ghost-btn" id="bookmark-cancel-btn">Cancel</button>
+              <button type="submit" class="primary-btn" id="bookmark-submit-btn">
+                Save Bookmark
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Confirm Modal -->
     <div class="modal-overlay" id="confirm-modal" hidden>
-        <div class="modal small">
-            <div class="modal-header">
-                <div>
-                    <h2>Delete bookmark?</h2>
-                    <p>This action cannot be undone.</p>
-                </div>
-                <button class="icon-button" id="confirm-close-btn" aria-label="Close">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="confirm-body">
-                <p id="confirm-message">Are you sure you want to delete this bookmark?</p>
-            </div>
-            <div class="modal-actions">
-                <button class="ghost-btn" id="confirm-cancel-btn">Cancel</button>
-                <button class="danger-btn" id="confirm-delete-btn">Delete</button>
-            </div>
+      <div class="modal small">
+        <div class="modal-header">
+          <div>
+            <h2>Delete bookmark?</h2>
+            <p>This action cannot be undone.</p>
+          </div>
+          <button class="icon-button" id="confirm-close-btn" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
+        <div class="confirm-body">
+          <p id="confirm-message">Are you sure you want to delete this bookmark?</p>
+        </div>
+        <div class="modal-actions">
+          <button class="ghost-btn" id="confirm-cancel-btn">Cancel</button>
+          <button class="danger-btn" id="confirm-delete-btn">Delete</button>
+        </div>
+      </div>
     </div>
 
     <!-- Import Modal -->
     <div class="modal-overlay" id="import-modal" hidden>
-        <div class="modal">
-            <div class="modal-header">
-                <div>
-                    <h2>Import bookmarks</h2>
-                    <p>Select a browser bookmark export file (.html)</p>
-                </div>
-                <button class="icon-button" id="import-modal-close" aria-label="Close">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <form id="import-form">
-                <div class="form-group">
-                    <label>Bookmarks file (.html)</label>
-                    <div class="file-input" id="import-file-trigger">
-                        <div>
-                            <strong id="import-file-name">No file selected</strong>
-                            <p>Supports Chrome/Edge/Firefox HTML bookmark exports. Items import to your Bookmarks Bar.</p>
-                        </div>
-                        <button type="button" class="ghost-btn small">Choose File</button>
-                        <input type="file" id="import-file" accept="text/html,.html" hidden />
-                    </div>
-                </div>
-                <div class="import-status" id="import-status"></div>
-                <div class="modal-actions">
-                    <button type="button" class="ghost-btn" id="import-cancel-btn">Cancel</button>
-                    <button type="submit" class="primary-btn" id="import-submit-btn">Import Bookmarks</button>
-                </div>
-            </form>
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <h2>Import bookmarks</h2>
+            <p>Select a browser bookmark export file (.html)</p>
+          </div>
+          <button class="icon-button" id="import-modal-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
+        <form id="import-form">
+          <div class="form-group">
+            <label>Bookmarks file (.html)</label>
+            <div class="file-input" id="import-file-trigger">
+              <div>
+                <strong id="import-file-name">No file selected</strong>
+                <p>
+                  Supports Chrome/Edge/Firefox HTML bookmark exports. Items import to your Bookmarks
+                  Bar.
+                </p>
+              </div>
+              <button type="button" class="ghost-btn small">Choose File</button>
+              <input type="file" id="import-file" accept="text/html,.html" hidden />
+            </div>
+          </div>
+          <div class="import-status" id="import-status"></div>
+          <div class="modal-actions">
+            <button type="button" class="ghost-btn" id="import-cancel-btn">Cancel</button>
+            <button type="submit" class="primary-btn" id="import-submit-btn">
+              Import Bookmarks
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Custom Category Modal -->
     <div class="modal-overlay" id="custom-category-modal" hidden>
-        <div class="modal">
-            <div class="modal-header">
-                <div>
-                    <h2>Create Custom Category</h2>
-                    <p>Add a category with keywords for auto-detection</p>
-                </div>
-                <button class="icon-button" id="custom-category-modal-close" aria-label="Close">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <form id="custom-category-form">
-                <div class="form-group">
-                    <label for="category-name">Category Name</label>
-                    <input type="text" id="category-name" name="name" placeholder="E.g. Photography, Recipes, Travel" required />
-                </div>
-                <div class="form-group">
-                    <label for="category-keywords">Keywords <span class="optional">(comma separated)</span></label>
-                    <input type="text" id="category-keywords" name="keywords" placeholder="E.g. photo, camera, lens, lightroom" />
-                    <p class="form-hint">Bookmarks with these keywords in title/URL will auto-categorize here</p>
-                </div>
-                <div class="form-group">
-                    <label>Assign Bookmarks <span class="optional">(optional)</span></label>
-                    <div class="bookmark-selector" id="bookmark-selector">
-                        <div class="bookmark-selector-search">
-                            <input type="text" id="bookmark-selector-search" placeholder="Search bookmarks to add..." />
-                        </div>
-                        <div class="bookmark-selector-list" id="bookmark-selector-list">
-                            <!-- Bookmarks will be injected here -->
-                        </div>
-                        <div class="bookmark-selector-selected" id="bookmark-selector-selected">
-                            <p class="selected-count"><span id="selected-bookmark-count">0</span> bookmarks selected</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="ghost-btn" id="custom-category-cancel-btn">Cancel</button>
-                    <button type="submit" class="primary-btn" id="custom-category-submit-btn">Create Category</button>
-                </div>
-            </form>
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <h2>Create Custom Category</h2>
+            <p>Add a category with keywords for auto-detection</p>
+          </div>
+          <button class="icon-button" id="custom-category-modal-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
+        <form id="custom-category-form">
+          <div class="form-group">
+            <label for="category-name">Category Name</label>
+            <input
+              type="text"
+              id="category-name"
+              name="name"
+              placeholder="E.g. Photography, Recipes, Travel"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="category-keywords"
+              >Keywords <span class="optional">(comma separated)</span></label
+            >
+            <input
+              type="text"
+              id="category-keywords"
+              name="keywords"
+              placeholder="E.g. photo, camera, lens, lightroom"
+            />
+            <p class="form-hint">
+              Bookmarks with these keywords in title/URL will auto-categorize here
+            </p>
+          </div>
+          <div class="form-group">
+            <label>Assign Bookmarks <span class="optional">(optional)</span></label>
+            <div class="bookmark-selector" id="bookmark-selector">
+              <div class="bookmark-selector-search">
+                <input
+                  type="text"
+                  id="bookmark-selector-search"
+                  placeholder="Search bookmarks to add..."
+                />
+              </div>
+              <div class="bookmark-selector-list" id="bookmark-selector-list">
+                <!-- Bookmarks will be injected here -->
+              </div>
+              <div class="bookmark-selector-selected" id="bookmark-selector-selected">
+                <p class="selected-count">
+                  <span id="selected-bookmark-count">0</span> bookmarks selected
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="ghost-btn" id="custom-category-cancel-btn">Cancel</button>
+            <button type="submit" class="primary-btn" id="custom-category-submit-btn">
+              Create Category
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div class="toast-container" id="toast-container"></div>
 
     <script src="popup.js"></script>
-</body>
+  </body>
 </html>
