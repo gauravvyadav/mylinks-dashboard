@@ -5697,6 +5697,7 @@ const DEFAULT_CATEGORIES = {
 
 // --- STATE ---
 let allBookmarks = [];
+let bookmarkMap = new Map(); // O(1) lookup by ID
 let categorizedBookmarks = {};
 let bookmarkFolders = [];
 let bookmarkMeta = {};
@@ -5705,6 +5706,7 @@ let searchQuery = '';
 let metadataFetchController = null;
 let metadataFetchTimeout = null;
 let pendingDeleteId = null;
+let searchDebounceTimeout = null;
 
 const autoFilledState = {
   title: false,
@@ -5810,6 +5812,7 @@ async function init() {
   hideLoading();
 
   registerEventListeners();
+  initBookmarkGridDelegation();
 }
 
 // --- BOOKMARK LOADING ---
@@ -5817,9 +5820,14 @@ async function loadBookmarks() {
   return new Promise((resolve) => {
     chrome.bookmarks.getTree((tree) => {
       allBookmarks = [];
+      bookmarkMap = new Map();
       bookmarkFolders = [];
       const folderTracker = new Set();
       extractBookmarks(tree, [], folderTracker);
+      // Build lookup map for O(1) access
+      for (const bookmark of allBookmarks) {
+        bookmarkMap.set(bookmark.id, bookmark);
+      }
       if (!bookmarkFolders.length) {
         bookmarkFolders.push({ id: '1', title: 'Bookmarks Bar', path: 'Bookmarks Bar' });
       }
@@ -5938,8 +5946,15 @@ function populateCategoryOptions() {
 function registerEventListeners() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-      searchQuery = e.target.value.toLowerCase();
-      renderBookmarks();
+      const value = e.target.value.toLowerCase();
+      // Debounce search to reduce re-renders during fast typing
+      if (searchDebounceTimeout) {
+        clearTimeout(searchDebounceTimeout);
+      }
+      searchDebounceTimeout = setTimeout(() => {
+        searchQuery = value;
+        renderBookmarks();
+      }, 150);
     });
   }
 
@@ -6040,7 +6055,7 @@ function registerEventListeners() {
 
 function requestBookmarkDeletion(bookmarkId) {
   pendingDeleteId = bookmarkId;
-  const target = allBookmarks.find((b) => b.id === bookmarkId);
+  const target = bookmarkMap.get(bookmarkId);
   if (confirmMessage && target) {
     confirmMessage.textContent = `Delete "${target.title}"? This cannot be undone.`;
   }
@@ -6085,7 +6100,7 @@ function openBookmarkModal(mode, bookmarkId = null) {
     mode === 'edit' ? 'Update bookmark details' : 'Create a new bookmark entry';
 
   if (mode === 'edit' && bookmarkId) {
-    const target = allBookmarks.find((b) => b.id === bookmarkId);
+    const target = bookmarkMap.get(bookmarkId);
     if (!target) {
       showToast('Bookmark not found', 'error');
       return;
@@ -6315,6 +6330,7 @@ function resetCustomCategoryForm() {
 }
 
 // Comprehensive search function - matches across all bookmark metadata
+// Uses cached search text for better performance
 function matchesSearchQuery(bookmark, query) {
   if (!query) return true;
 
@@ -6323,30 +6339,29 @@ function matchesSearchQuery(bookmark, query) {
     .split(/\s+/)
     .filter((t) => t.length > 0);
 
-  // Build searchable text from all metadata fields
-  const searchableFields = [
-    bookmark.title || '',
-    bookmark.url || '',
-    bookmark.description || '',
-    DEFAULT_CATEGORIES[bookmark.category]?.name || '',
-    // Include category keywords for matching
-    ...(DEFAULT_CATEGORIES[bookmark.category]?.keywords || []),
-  ];
+  // Use cached search text if available, otherwise build it
+  if (!bookmark._searchText) {
+    const searchableFields = [
+      bookmark.title || '',
+      bookmark.url || '',
+      bookmark.description || '',
+      DEFAULT_CATEGORIES[bookmark.category]?.name || '',
+      ...(DEFAULT_CATEGORIES[bookmark.category]?.keywords || []),
+    ];
 
-  // Extract domain for searching
-  try {
-    const url = new URL(bookmark.url);
-    searchableFields.push(url.hostname.replace('www.', ''));
-    // Add path segments as searchable
-    searchableFields.push(...url.pathname.split('/').filter((s) => s));
-  } catch (e) {
-    // URL parsing failed, already have raw URL
+    try {
+      const url = new URL(bookmark.url);
+      searchableFields.push(url.hostname.replace('www.', ''));
+      searchableFields.push(...url.pathname.split('/').filter((s) => s));
+    } catch (e) {
+      // URL parsing failed, already have raw URL
+    }
+
+    bookmark._searchText = searchableFields.join(' ').toLowerCase();
   }
 
-  const searchText = searchableFields.join(' ').toLowerCase();
-
   // All search terms must match (AND logic for multiple words)
-  return searchTerms.every((term) => searchText.includes(term));
+  return searchTerms.every((term) => bookmark._searchText.includes(term));
 }
 
 function populateBookmarkSelector(filter = '') {
@@ -6453,6 +6468,9 @@ async function handleCustomCategorySubmit(event) {
     urlPatterns: [],
   };
 
+  // Invalidate compiled categories cache so new category is included
+  compiledCategories = null;
+
   // Add to custom categories for persistence
   customCategories[categoryId] = {
     name: name,
@@ -6462,7 +6480,7 @@ async function handleCustomCategorySubmit(event) {
   // Assign selected bookmarks to this category
   const selectedIds = Array.from(selectedBookmarkIds);
   for (const bookmarkId of selectedIds) {
-    const bookmark = allBookmarks.find((b) => b.id === bookmarkId);
+    const bookmark = bookmarkMap.get(bookmarkId);
     if (bookmark) {
       bookmark.category = categoryId;
       // Store as manual override
@@ -7222,7 +7240,7 @@ function updateExistingBookmark({ id, title, url, folderId, categoryValue, descr
         return;
       }
 
-      const existing = allBookmarks.find((b) => b.id === id);
+      const existing = bookmarkMap.get(id);
       const currentParent = existing?.parentId || updated.parentId;
       const moveNeeded = folderId && folderId !== currentParent;
       try {
@@ -7288,7 +7306,7 @@ async function reloadData({ manualOverrides = {}, recategorizeIds = [] } = {}) {
 
   if (manualOverrides && Object.keys(manualOverrides).length) {
     for (const [id, category] of Object.entries(manualOverrides)) {
-      const bookmark = allBookmarks.find((b) => b.id === id);
+      const bookmark = bookmarkMap.get(id);
       if (bookmark) {
         bookmark.category = category;
       }
@@ -7339,7 +7357,38 @@ function resolveFolderId(selectedId = null) {
 }
 
 // --- KEYWORD-BASED CATEGORIZATION ---
+
+// Pre-compiled category data for faster matching (built once, used many times)
+let compiledCategories = null;
+
+function buildCompiledCategories() {
+  if (compiledCategories) return compiledCategories;
+  
+  compiledCategories = [];
+  for (const [categoryId, categoryData] of Object.entries(DEFAULT_CATEGORIES)) {
+    const compiled = {
+      id: categoryId,
+      // Pre-lowercase URL patterns
+      urlPatterns: (categoryData.urlPatterns || []).map(p => p.toLowerCase()),
+      // Pre-lowercase keywords and create word boundary regex
+      keywords: (categoryData.keywords || []).map(kw => {
+        const lower = kw.toLowerCase();
+        return {
+          text: lower,
+          // Pre-compile regex for word boundary matching
+          regex: new RegExp(`\\b${lower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+        };
+      })
+    };
+    compiledCategories.push(compiled);
+  }
+  return compiledCategories;
+}
+
 function categorizeWithKeywords() {
+  // Ensure compiled categories are ready
+  buildCompiledCategories();
+  
   for (const bookmark of allBookmarks) {
     bookmark.category = findBestCategory(bookmark);
   }
@@ -7354,48 +7403,43 @@ function findBestCategory(bookmark) {
   const description = (bookmark.description || '').toLowerCase();
   const text = `${title} ${url} ${folder} ${description}`;
 
-  let bestMatch = { category: 'uncategorized', score: 0 };
+  let bestCategory = 'uncategorized';
+  let bestScore = 0;
 
-  for (const [categoryId, categoryData] of Object.entries(DEFAULT_CATEGORIES)) {
+  for (const category of compiledCategories) {
     let score = 0;
 
-    // Check URL patterns first (highest priority)
-    if (categoryData.urlPatterns) {
-      for (const pattern of categoryData.urlPatterns) {
-        if (url.includes(pattern.toLowerCase())) {
-          score += 10; // High score for URL match
-        }
+    // Check URL patterns first (highest priority) - already lowercased
+    for (const pattern of category.urlPatterns) {
+      if (url.includes(pattern)) {
+        score += 10;
       }
     }
 
-    // Check keywords
-    for (const keyword of categoryData.keywords) {
-      const kw = keyword.toLowerCase();
-      // Exact word boundary match scores higher
-      const wordBoundaryRegex = new RegExp(`\\b${escapeRegex(kw)}\\b`, 'i');
-      if (wordBoundaryRegex.test(text)) {
+    // Check keywords with pre-compiled regex
+    for (const kw of category.keywords) {
+      if (kw.regex.test(text)) {
         score += 3;
-      } else if (text.includes(kw)) {
+      } else if (text.includes(kw.text)) {
         score += 1;
       }
     }
 
     // Update best match if this category scores higher
-    if (score > bestMatch.score) {
-      bestMatch = { category: categoryId, score: score };
+    if (score > bestScore) {
+      bestCategory = category.id;
+      bestScore = score;
     }
   }
 
-  return bestMatch.category;
-}
-
-function escapeRegex(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return bestCategory;
 }
 
 function updateCategorizedBookmarks() {
   categorizedBookmarks = {};
   for (const bookmark of allBookmarks) {
+    // Invalidate search cache when category changes (category name is part of search text)
+    delete bookmark._searchText;
     const cat = bookmark.category || 'uncategorized';
     if (!categorizedBookmarks[cat]) {
       categorizedBookmarks[cat] = [];
@@ -7407,7 +7451,7 @@ function updateCategorizedBookmarks() {
 function applyCategoriesToBookmarks() {
   for (const [category, ids] of Object.entries(categorizedBookmarks)) {
     for (const id of ids) {
-      const bookmark = allBookmarks.find((b) => b.id === id);
+      const bookmark = bookmarkMap.get(id);
       if (bookmark) {
         bookmark.category = category;
       }
@@ -7505,15 +7549,15 @@ function renderSidebar() {
   label.textContent = 'Categories';
   categoryNav.appendChild(label);
 
-  // Count bookmarks per category
-  const categoryCounts = {};
-  allBookmarks.forEach((b) => {
-    categoryCounts[b.category] = (categoryCounts[b.category] || 0) + 1;
-  });
+  // Count bookmarks per category (single pass)
+  const categoryCounts = Object.create(null);
+  for (let i = 0; i < allBookmarks.length; i++) {
+    const cat = allBookmarks[i].category;
+    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+  }
 
   // Get all categories that have bookmarks and sort alphabetically by name
   const categoriesWithBookmarks = Object.keys(categoryCounts)
-    .filter((catId) => categoryCounts[catId] > 0)
     .sort((a, b) => {
       // Keep 'uncategorized' at the end
       if (a === 'uncategorized') return 1;
@@ -7585,11 +7629,13 @@ function renderBookmarks() {
 
   emptyState.style.display = 'none';
 
-  // Render cards
+  // Render cards using document fragment for better performance
+  const fragment = document.createDocumentFragment();
   items.forEach((item) => {
     const card = createBookmarkCard(item);
-    bookmarksGrid.appendChild(card);
+    fragment.appendChild(card);
   });
+  bookmarksGrid.appendChild(fragment);
 }
 
 function createBookmarkCard(bookmark) {
@@ -7598,6 +7644,7 @@ function createBookmarkCard(bookmark) {
   card.target = '_blank';
   card.rel = 'noopener noreferrer';
   card.className = 'bookmark-card';
+  card.dataset.bookmarkId = bookmark.id;
 
   let domain = '';
   try {
@@ -7660,21 +7707,40 @@ function createBookmarkCard(bookmark) {
   if (faviconImg) {
     faviconImg.addEventListener('error', handleFaviconError);
   }
-  const editBtn = card.querySelector('[data-action="edit"]');
-  const deleteBtn = card.querySelector('[data-action="delete"]');
-  editBtn.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openBookmarkModal('edit', bookmark.id);
-  });
-  deleteBtn.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    requestBookmarkDeletion(bookmark.id);
-  });
-  [editBtn, deleteBtn].forEach((btn) => btn.addEventListener('keydown', handleActionKeydown));
 
   return card;
+}
+
+// Event delegation for bookmark card actions (more efficient than per-card listeners)
+function initBookmarkGridDelegation() {
+  if (!bookmarksGrid) return;
+  
+  bookmarksGrid.addEventListener('click', (event) => {
+    const actionBtn = event.target.closest('[data-action]');
+    if (!actionBtn) return;
+    
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const card = actionBtn.closest('.bookmark-card');
+    if (!card) return;
+    
+    const bookmarkId = card.dataset.bookmarkId;
+    if (!bookmarkId) return;
+    
+    const action = actionBtn.dataset.action;
+    if (action === 'edit') {
+      openBookmarkModal('edit', bookmarkId);
+    } else if (action === 'delete') {
+      requestBookmarkDeletion(bookmarkId);
+    }
+  });
+  
+  bookmarksGrid.addEventListener('keydown', (event) => {
+    const actionBtn = event.target.closest('[data-action]');
+    if (!actionBtn) return;
+    handleActionKeydown(event);
+  });
 }
 
 function escapeHtml(text) {
