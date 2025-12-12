@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "MyLinks Dashboard",
   "version": "1.2.0",
+  "author": "Gaurav Yadav (https://github.com/gauravvyadav)",
   "description": "Beautiful bookmark dashboard with smart auto-categorization. Organize and access all your bookmarks elegantly.",
   "permissions": ["bookmarks", "storage"],
   "host_permissions": ["<all_urls>"],

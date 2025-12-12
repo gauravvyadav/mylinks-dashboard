@@ -77,3 +77,7 @@ Current version: **1.2.0**
 ## Author
 
 Made by [gauravvyadav](https://github.com/gauravvyadav)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
