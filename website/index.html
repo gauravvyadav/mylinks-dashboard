@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyLinks Dashboard - Beautiful Bookmark Manager for Chrome</title>
+    <meta
+      name="description"
+      content="A beautiful bookmark dashboard with smart auto-categorization. Organize and access all your bookmarks elegantly."
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="favicon.ico" />
+
+    <!-- SEO & Social Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mylinks-dashboard.gauravlabs.com/" />
+    <meta property="og:title" content="MyLinks Dashboard - Beautiful Bookmark Manager" />
+    <meta
+      property="og:description"
+      content="A beautiful bookmark dashboard with smart auto-categorization. Organize and access all your bookmarks elegantly."
+    />
+    <meta property="og:image" content="assets/preview.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MyLinks Dashboard - Beautiful Bookmark Manager" />
+    <meta
+      name="twitter:description"
+      content="A beautiful bookmark dashboard with smart auto-categorization. Organize and access all your bookmarks elegantly."
+    />
+    <meta name="twitter:image" content="assets/preview.png" />
+
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNPFW8LMY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      gtag('config', 'G-GNPFW8LMY8');
+    </script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container nav-container">
+        <a href="#" class="logo">
+          <svg
+            class="logo-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+          </svg>
+          <span>MyLinks</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="privacy/">Privacy</a>
+          <a
+            href="https://github.com/gauravvyadav/mylinks-dashboard"
+            target="_blank"
+            class="github-badge-btn"
+            aria-label="GitHub"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+            <span class="star-count" id="star-count">26.9k</span>
+          </a>
+          <a href="#install" class="btn btn-primary btn-sm">Add to Chrome</a>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <div class="badge">✨ Free Chrome Extension</div>
+          <h1>Your Bookmarks,<br /><span class="gradient-text">Beautifully Organized</span></h1>
+          <p class="hero-description">
+            Stop scrolling through endless bookmark folders. MyLinks Dashboard automatically
+            categorizes and displays all your bookmarks in one elegant, searchable interface.
+          </p>
+          <div class="hero-buttons">
+            <a href="#install" class="btn btn-primary btn-lg">
+              <img src="assets/chrome.svg" alt="" class="btn-icon" aria-hidden="true" />
+              Add to Chrome — It's Free
+            </a>
+            <a href="#features" class="btn btn-secondary btn-lg">Learn More</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <span class="stat-number">100+</span>
+              <span class="stat-label">Categories</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Private</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <span class="stat-number">0</span>
+              <span class="stat-label">Data Collected</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="browser-frame">
+            <!-- Browser Tab Bar -->
+            <div class="browser-tabs">
+              <div class="browser-tab active">
+                <span class="tab-icon">🌐</span>
+                <span class="tab-title">New Tab</span>
+                <span class="tab-close">×</span>
+              </div>
+              <div class="tab-add">+</div>
+            </div>
+            <!-- Browser Toolbar -->
+            <div class="browser-toolbar">
+              <div class="toolbar-nav">
+                <button class="nav-btn">←</button>
+                <button class="nav-btn">→</button>
+                <button class="nav-btn">↻</button>
+              </div>
+              <div class="toolbar-url">
+                <span class="url-lock">🔒</span>
+                <span class="url-text">chrome://newtab</span>
+              </div>
+              <div class="toolbar-actions">
+                <div class="extension-icon active">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                  </svg>
+                </div>
+                <span class="toolbar-menu">⋮</span>
+              </div>
+            </div>
+            <!-- Extension Popup -->
+            <div class="extension-popup">
+              <div class="popup-content">
+                <img
+                  src="assets/preview.png"
+                  alt="MyLinks Dashboard Preview"
+                  class="preview-image"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-bg"></div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-header">
+          <h2>
+            Everything you need to<br /><span class="gradient-text">manage your bookmarks</span>
+          </h2>
+          <p>Powerful features wrapped in a beautiful, intuitive interface.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon purple">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+              </svg>
+            </div>
+            <h3>Smart Auto-Categorization</h3>
+            <p>
+              Bookmarks are automatically sorted into 100+ categories like Development, Design,
+              Finance, AI Tools, Gaming, Music, and more using intelligent keyword matching.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </div>
+            <h3>Smart Search</h3>
+            <p>
+              Just start typing! Find bookmarks by name, website, category, or even words from the
+              URL. Your bookmarks, found in seconds.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
+            <h3>100% Private</h3>
+            <p>
+              All data stays on your device. No accounts, no tracking, no data collection. Your
+              bookmarks are yours alone.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5" />
+                <path
+                  d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                />
+              </svg>
+            </div>
+            <h3>Dark Mode</h3>
+            <p>
+              Automatically matches your system theme. Beautiful in light mode, stunning in dark
+              mode.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon pink">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+              </svg>
+            </div>
+            <h3>Beautiful Card Layout</h3>
+            <p>
+              Each bookmark is displayed as a card with favicon, title, and category tag. Hover to
+              reveal quick actions.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+              </svg>
+            </div>
+            <h3>One-Click Re-Categorize</h3>
+            <p>
+              Made changes to your bookmarks? Hit re-categorize to instantly sort everything again.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </div>
+            <h3>Custom Categories</h3>
+            <p>
+              Create your own categories with custom keywords. Perfect for organizing niche
+              bookmarks your way.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon indigo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </div>
+            <h3>Import & Export</h3>
+            <p>
+              Export bookmarks as standard Chrome default HTML or beautiful HTML dashboard to share.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon rose">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </div>
+            <h3>Full CRUD Control</h3>
+            <p>
+              Add, edit, and delete bookmarks without leaving the popup. Auto-fetches title &
+              description from URLs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="categories">
+      <div class="container">
+        <div class="section-header">
+          <h2>100+ Smart Categories</h2>
+          <p>Your bookmarks, automatically organized into meaningful groups.</p>
+        </div>
+        <div class="category-tags">
+          <span class="category-tag ai">AI Tools</span>
+          <span class="category-tag development">Development</span>
+          <span class="category-tag education">Education</span>
+          <span class="category-tag design">Design</span>
+          <span class="category-tag finance">Finance</span>
+          <span class="category-tag entertainment">Entertainment</span>
+          <span class="category-tag tools">Tools & Utilities</span>
+          <span class="category-tag social">Social</span>
+          <span class="category-tag shopping">Shopping</span>
+          <span class="category-tag news">News & Media</span>
+          <span class="category-tag gaming">Gaming</span>
+          <span class="category-tag music">Music</span>
+          <span class="category-tag crypto">Crypto</span>
+          <span class="category-tag health">Health & Fitness</span>
+          <span class="category-tag travel">Travel</span>
+          <span class="category-tag books">Books</span>
+          <span class="category-tag more">+90 more...</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <h2>Get started in <span class="gradient-text">3 simple steps</span></h2>
+          <p>No configuration needed. Just install and enjoy.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Install the Extension</h3>
+              <p>
+                Add MyLinks Dashboard to Chrome from the Chrome Web Store. It's free and takes just
+                one click.
+              </p>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Click the Icon</h3>
+              <p>
+                Click the MyLinks icon in your browser toolbar to open your beautiful bookmark
+                dashboard.
+              </p>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Enjoy Organized Bookmarks</h3>
+              <p>
+                All your bookmarks are automatically categorized and ready to search. That's it!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="privacy-section" id="privacy">
+      <div class="container">
+        <div class="privacy-card">
+          <div class="privacy-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </div>
+          <h2>Your Privacy, Protected</h2>
+          <p class="privacy-description">
+            We believe your bookmarks are personal. That's why MyLinks Dashboard is built with
+            privacy at its core.
+          </p>
+          <div class="privacy-points">
+            <div class="privacy-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <span>No data collection — ever</span>
+            </div>
+            <div class="privacy-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <span>No accounts or sign-ups required</span>
+            </div>
+            <div class="privacy-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <span>All processing happens locally on your device</span>
+            </div>
+            <div class="privacy-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <span>No analytics or tracking scripts</span>
+            </div>
+            <div class="privacy-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <span>Open and transparent permissions</span>
+            </div>
+          </div>
+          <a href="/privacy" class="privacy-link">Read our full Privacy Policy →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="install">
+      <div class="container">
+        <div class="cta-content">
+          <h2>Ready to organize your bookmarks?</h2>
+          <p>Join thousands of users who've transformed their browsing experience.</p>
+          <a
+            href="https://chromewebstore.google.com/detail/mylinks-dashboard/kgmepnjncejbhdknpgacadidhippbpmk"
+            class="btn btn-white btn-lg"
+            target="_blank"
+          >
+            <img src="assets/chrome.svg" alt="" class="btn-icon" aria-hidden="true" />
+            Add to Chrome — It's Free
+          </a>
+          <span class="cta-note">Works with Chrome, Edge, Brave, and other Chromium browsers</span>
+        </div>
+      </div>
+      <div class="cta-bg"></div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <a href="#" class="logo">
+              <svg
+                class="logo-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+              </svg>
+              <span>MyLinks</span>
+            </a>
+            <p>
+              A beautiful bookmark dashboard that automatically organizes your bookmarks into 100+
+              smart categories. Search, manage, and access all your saved links in one elegant
+              interface.
+            </p>
+          </div>
+          <div class="footer-links">
+            <div class="footer-column">
+              <h4>Product</h4>
+              <a href="#features">Features</a>
+              <a href="#how-it-works">How It Works</a>
+              <a href="#install">Download</a>
+            </div>
+            <div class="footer-column">
+              <h4>Resources</h4>
+              <a href="https://github.com/gauravvyadav/mylinks-dashboard" target="_blank">GitHub</a>
+              <a href="privacy/">Privacy Policy</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2025 <a href="https://gauravlabs.com" target="_blank">Gaurav Labs</a>. Open
+            Source under
+            <a
+              href="https://github.com/gauravvyadav/mylinks-dashboard/blob/main/LICENSE"
+              target="_blank"
+              >MIT License</a
+            >.
+          </p>
+        </div>
+      </div>
+    </footer>
+    <script>
+      // Fetch GitHub Stars
+      fetch('https://api.github.com/repos/gauravvyadav/mylinks-dashboard')
+        .then((response) => response.json())
+        .then((data) => {
+          const starCount = data.stargazers_count;
+          if (starCount !== undefined) {
+            // Format K for thousands
+            const formattedCount =
+              starCount >= 1000 ? (starCount / 1000).toFixed(1) + 'k' : starCount;
+            document.getElementById('star-count').textContent = formattedCount;
+          }
+        });
+    </script>
+  </body>
+</html>
