@@ -6384,7 +6384,9 @@ function populateBookmarkSelector(filter = '') {
         domain = bookmark.url;
       }
       return `
-            <label class="bookmark-selector-item ${isSelected ? 'selected' : ''}" data-id="${bookmark.id}">
+            <label class="bookmark-selector-item ${isSelected ? 'selected' : ''}" data-id="${
+        bookmark.id
+      }">
                 <input type="checkbox" ${isSelected ? 'checked' : ''} />
                 <div class="bookmark-info">
                     <div class="bookmark-title">${escapeHtml(bookmark.title)}</div>
@@ -6567,7 +6569,9 @@ async function handleImportSubmit(event) {
 
     // Handle result with skipped duplicates info
     if (typeof result === 'object' && result.skipped > 0) {
-      const importedText = `Imported ${result.imported} bookmark${result.imported === 1 ? '' : 's'}`;
+      const importedText = `Imported ${result.imported} bookmark${
+        result.imported === 1 ? '' : 's'
+      }`;
       const skippedText = `${result.skipped} duplicate${result.skipped === 1 ? '' : 's'} skipped`;
       showToast(`${importedText}, ${skippedText}.`);
     } else {
@@ -6770,7 +6774,9 @@ function buildNetscapeExport() {
           const addDate = bookmark.dateAdded
             ? Math.floor(bookmark.dateAdded / 1000)
             : Math.floor(Date.now() / 1000);
-          html += `        <DT><A HREF="${escapeHtml(bookmark.url)}" ADD_DATE="${addDate}">${escapeHtml(bookmark.title)}</A>\n`;
+          html += `        <DT><A HREF="${escapeHtml(
+            bookmark.url
+          )}" ADD_DATE="${addDate}">${escapeHtml(bookmark.title)}</A>\n`;
         });
       html += `    </DL><p>\n`;
     });
@@ -6801,7 +6807,9 @@ function buildBeautifulExport() {
                     <div class="category-header">
                         <div>
                             <h2>${escapeHtml(categoryName)}</h2>
-                            <p class="category-count">${items.length} bookmark${items.length === 1 ? '' : 's'}</p>
+                            <p class="category-count">${items.length} bookmark${
+        items.length === 1 ? '' : 's'
+      }</p>
                         </div>
                     </div>
                     <div class="card-grid">
@@ -7037,7 +7045,13 @@ function buildBeautifulExport() {
     <div class="container">
         <header>
             <h1>✨ MyLinks Bookmarks</h1>
-            <p>${allBookmarks.length} curated bookmark${allBookmarks.length === 1 ? '' : 's'} · Exported on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p>${allBookmarks.length} curated bookmark${
+    allBookmarks.length === 1 ? '' : 's'
+  } · Exported on ${new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })}</p>
             <div class="search-container">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"/>
@@ -7046,8 +7060,12 @@ function buildBeautifulExport() {
                 <input type="text" class="search-input" id="searchInput" placeholder="Search bookmarks..." autocomplete="off">
             </div>
             <div class="stats">
-                <div class="stat-item"><strong>${allBookmarks.length}</strong><span>Total Bookmarks</span></div>
-                <div class="stat-item"><strong>${Object.keys(grouped).length}</strong><span>Categories</span></div>
+                <div class="stat-item"><strong>${
+                  allBookmarks.length
+                }</strong><span>Total Bookmarks</span></div>
+                <div class="stat-item"><strong>${
+                  Object.keys(grouped).length
+                }</strong><span>Categories</span></div>
             </div>
         </header>
         <div class="no-results" id="noResults">
@@ -7098,7 +7116,9 @@ function renderHtmlExportCard(bookmark) {
   const description = bookmark.description || 'No description provided.';
   const categoryLabel = DEFAULT_CATEGORIES[bookmark.category]?.name || 'Uncategorized';
   return `
-        <a class="link-card" href="${escapeHtml(bookmark.url)}" target="_blank" rel="noopener noreferrer">
+        <a class="link-card" href="${escapeHtml(
+          bookmark.url
+        )}" target="_blank" rel="noopener noreferrer">
             <div>
                 <p class="card-title">${escapeHtml(bookmark.title)}</p>
                 <p class="card-domain">${escapeHtml(domain)}</p>
@@ -7363,22 +7383,22 @@ let compiledCategories = null;
 
 function buildCompiledCategories() {
   if (compiledCategories) return compiledCategories;
-  
+
   compiledCategories = [];
   for (const [categoryId, categoryData] of Object.entries(DEFAULT_CATEGORIES)) {
     const compiled = {
       id: categoryId,
       // Pre-lowercase URL patterns
-      urlPatterns: (categoryData.urlPatterns || []).map(p => p.toLowerCase()),
+      urlPatterns: (categoryData.urlPatterns || []).map((p) => p.toLowerCase()),
       // Pre-lowercase keywords and create word boundary regex
-      keywords: (categoryData.keywords || []).map(kw => {
+      keywords: (categoryData.keywords || []).map((kw) => {
         const lower = kw.toLowerCase();
         return {
           text: lower,
           // Pre-compile regex for word boundary matching
-          regex: new RegExp(`\\b${lower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+          regex: new RegExp(`\\b${lower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`),
         };
-      })
+      }),
     };
     compiledCategories.push(compiled);
   }
@@ -7388,7 +7408,7 @@ function buildCompiledCategories() {
 function categorizeWithKeywords() {
   // Ensure compiled categories are ready
   buildCompiledCategories();
-  
+
   for (const bookmark of allBookmarks) {
     bookmark.category = findBestCategory(bookmark);
   }
@@ -7406,7 +7426,7 @@ function findBestCategory(bookmark) {
   let bestCategory = 'uncategorized';
   let bestScore = 0;
 
-  for (const category of compiledCategories) {
+  for (const category of compiledCategories || buildCompiledCategories()) {
     let score = 0;
 
     // Check URL patterns first (highest priority) - already lowercased
@@ -7557,15 +7577,14 @@ function renderSidebar() {
   }
 
   // Get all categories that have bookmarks and sort alphabetically by name
-  const categoriesWithBookmarks = Object.keys(categoryCounts)
-    .sort((a, b) => {
-      // Keep 'uncategorized' at the end
-      if (a === 'uncategorized') return 1;
-      if (b === 'uncategorized') return -1;
-      const nameA = DEFAULT_CATEGORIES[a]?.name || a;
-      const nameB = DEFAULT_CATEGORIES[b]?.name || b;
-      return nameA.localeCompare(nameB);
-    });
+  const categoriesWithBookmarks = Object.keys(categoryCounts).sort((a, b) => {
+    // Keep 'uncategorized' at the end
+    if (a === 'uncategorized') return 1;
+    if (b === 'uncategorized') return -1;
+    const nameA = DEFAULT_CATEGORIES[a]?.name || a;
+    const nameB = DEFAULT_CATEGORIES[b]?.name || b;
+    return nameA.localeCompare(nameB);
+  });
 
   // Render category buttons
   for (const catId of categoriesWithBookmarks) {
@@ -7666,7 +7685,7 @@ function createBookmarkCard(bookmark) {
         </div>
         <div class="card-header">
             <div class="favicon-container">
-                <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=32" 
+                <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=32"
                      alt=""
                      class="favicon-img">
                 <svg class="favicon-fallback" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -7714,20 +7733,20 @@ function createBookmarkCard(bookmark) {
 // Event delegation for bookmark card actions (more efficient than per-card listeners)
 function initBookmarkGridDelegation() {
   if (!bookmarksGrid) return;
-  
+
   bookmarksGrid.addEventListener('click', (event) => {
     const actionBtn = event.target.closest('[data-action]');
     if (!actionBtn) return;
-    
+
     event.preventDefault();
     event.stopPropagation();
-    
+
     const card = actionBtn.closest('.bookmark-card');
     if (!card) return;
-    
+
     const bookmarkId = card.dataset.bookmarkId;
     if (!bookmarkId) return;
-    
+
     const action = actionBtn.dataset.action;
     if (action === 'edit') {
       openBookmarkModal('edit', bookmarkId);
@@ -7735,7 +7754,7 @@ function initBookmarkGridDelegation() {
       requestBookmarkDeletion(bookmarkId);
     }
   });
-  
+
   bookmarksGrid.addEventListener('keydown', (event) => {
     const actionBtn = event.target.closest('[data-action]');
     if (!actionBtn) return;
